@@ -9,6 +9,8 @@ namespace Socket
     {
         private static readonly Dictionary<Guid, List<string>> OnlineUsers =
             new();
+        private static readonly Dictionary<string, string> _ConnectionsMap =
+            new();
 
         public Task<bool> UserConnected(Guid userId, string connectionId)
         {
@@ -91,6 +93,11 @@ namespace Socket
             }
 
             return Task.FromResult(connectionIds);
+        }
+
+        public void AddConnectionMap(string conn1, string conn2)
+        {
+            _ConnectionsMap.Add(conn1, conn2);
         }
     }
 }

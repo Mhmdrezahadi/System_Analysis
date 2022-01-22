@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System_Analysis.Models;
 
 namespace Entities.Identity
 {
@@ -42,7 +43,8 @@ namespace Entities.Identity
         public virtual ICollection<UserToken> Tokens { get; set; }
 
         public virtual ICollection<UserRole> UserRoles { get; set; }
-
+        public ICollection<Room> Rooms { get; set; }
+        public ICollection<Message> Messages { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

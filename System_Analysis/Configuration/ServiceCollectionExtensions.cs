@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Socket;
 using System.Reflection;
 using System.Text;
 using System_Analysis.Models;
@@ -27,7 +28,10 @@ namespace System_Analysis
 
             services.AddScoped<IGlobalService, GlobalService>();
 
-            services.AddSignalR();
+            services.AddSingleton<PresenceTracker>();
+
+            services.AddSignalR(option => option.MaximumReceiveMessageSize = 102400000);
+           
 
             services.AddAuthentication(options =>
             {
@@ -59,7 +63,7 @@ namespace System_Analysis
                 {
                     OnMessageReceived = context =>
                     {
-                        var accessToken = context.Request.Query["token"];
+                        var accessToken = context.Request.Query["access_token"];
 
                         // If the request is for our hub...
                         var path = context.HttpContext.Request.Path;
