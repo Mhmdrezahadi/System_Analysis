@@ -2,11 +2,11 @@
 
 namespace System_Analysis.Models
 {
-    public class Room
+    public class Group
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public User Admin { get; set; }
-        public ICollection<Message> Messages { get; set; }
+        public ICollection<GroupMessage> GroupMessages { get; set; }
     }
 }

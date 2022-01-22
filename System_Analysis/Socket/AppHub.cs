@@ -94,15 +94,22 @@ namespace Socket
 
         public async Task SendPrivate(string username, string message)
         {
-            var user = Guid.Parse(Context.ConnectionId);
+            var user = Guid.Parse(Context.UserIdentifier);
+
+            var sender = _dbContext.Users.Where(x => x.Id == user).FirstOrDefault();
+            var reciever = _dbContext.Users.Where(x => x.UserName == username).FirstOrDefault();
+            var recieverConnections = await _presenceTracker.GetConnectionsForUser(reciever.Id);
+
+            _dbContext.GroupMessages.Add(new GroupMessage 
+            { 
+                Content = message,
+                FromUser = sender,
+                Timestamp = DateTime.Now,
+                ToGroup = null
+            });
 
             if (await _presenceTracker.UserIsOnline(user))
             {
-                var sender = _dbContext.Users.Where(x => x.Id == user).FirstOrDefault();
-                var reciever = _dbContext.Users.Where(x => x.UserName == username).FirstOrDefault();
-
-                var recieverConnections = await _presenceTracker.GetConnectionsForUser(reciever.Id);
-
                 if (!string.IsNullOrEmpty(message.Trim()))
                 {
                     // Build the message

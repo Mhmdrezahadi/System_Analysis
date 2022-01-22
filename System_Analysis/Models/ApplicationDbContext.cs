@@ -12,6 +12,9 @@ namespace System_Analysis.Models
         {
 
         }
+        public DbSet<GroupMessage> GroupMessages { get; set; }
+        public DbSet<Group> Groups { get; set; }
+        public DbSet<PrivateMessage> PrivateMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

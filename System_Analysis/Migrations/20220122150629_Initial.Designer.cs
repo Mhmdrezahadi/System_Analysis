@@ -12,8 +12,8 @@ using System_Analysis.Models;
 namespace System_Analysis.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220121192823_AddRoomAndMessage")]
-    partial class AddRoomAndMessage
+    [Migration("20220122150629_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -312,42 +312,26 @@ namespace System_Analysis.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("System_Analysis.Models.Message", b =>
+            modelBuilder.Entity("PrivateMessageUser", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("FromUserId")
+                    b.Property<Guid>("PrivateMessagesId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
+                    b.Property<Guid>("UsersId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("ToRoomId")
-                        .HasColumnType("int");
+                    b.HasKey("PrivateMessagesId", "UsersId");
 
-                    b.HasKey("Id");
+                    b.HasIndex("UsersId");
 
-                    b.HasIndex("FromUserId");
-
-                    b.HasIndex("ToRoomId");
-
-                    b.ToTable("Message");
+                    b.ToTable("PrivateMessageUser");
                 });
 
-            modelBuilder.Entity("System_Analysis.Models.Room", b =>
+            modelBuilder.Entity("System_Analysis.Models.Group", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("AdminId")
                         .HasColumnType("uniqueidentifier");
@@ -359,7 +343,51 @@ namespace System_Analysis.Migrations
 
                     b.HasIndex("AdminId");
 
-                    b.ToTable("Room");
+                    b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("System_Analysis.Models.GroupMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("FromUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ToGroupId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FromUserId");
+
+                    b.HasIndex("ToGroupId");
+
+                    b.ToTable("GroupMessages");
+                });
+
+            modelBuilder.Entity("System_Analysis.Models.PrivateMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PrivateMessages");
                 });
 
             modelBuilder.Entity("Entities.Identity.RoleClaim", b =>
@@ -425,30 +453,45 @@ namespace System_Analysis.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("System_Analysis.Models.Message", b =>
+            modelBuilder.Entity("PrivateMessageUser", b =>
                 {
-                    b.HasOne("Entities.Identity.User", "FromUser")
-                        .WithMany("Messages")
-                        .HasForeignKey("FromUserId");
-
-                    b.HasOne("System_Analysis.Models.Room", "ToRoom")
-                        .WithMany("Messages")
-                        .HasForeignKey("ToRoomId")
+                    b.HasOne("System_Analysis.Models.PrivateMessage", null)
+                        .WithMany()
+                        .HasForeignKey("PrivateMessagesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("FromUser");
-
-                    b.Navigation("ToRoom");
+                    b.HasOne("Entities.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("System_Analysis.Models.Room", b =>
+            modelBuilder.Entity("System_Analysis.Models.Group", b =>
                 {
                     b.HasOne("Entities.Identity.User", "Admin")
                         .WithMany("Rooms")
                         .HasForeignKey("AdminId");
 
                     b.Navigation("Admin");
+                });
+
+            modelBuilder.Entity("System_Analysis.Models.GroupMessage", b =>
+                {
+                    b.HasOne("Entities.Identity.User", "FromUser")
+                        .WithMany("GroupMessages")
+                        .HasForeignKey("FromUserId");
+
+                    b.HasOne("System_Analysis.Models.Group", "ToGroup")
+                        .WithMany("GroupMessages")
+                        .HasForeignKey("ToGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FromUser");
+
+                    b.Navigation("ToGroup");
                 });
 
             modelBuilder.Entity("Entities.Identity.Role", b =>
@@ -462,9 +505,9 @@ namespace System_Analysis.Migrations
                 {
                     b.Navigation("Claims");
 
-                    b.Navigation("Logins");
+                    b.Navigation("GroupMessages");
 
-                    b.Navigation("Messages");
+                    b.Navigation("Logins");
 
                     b.Navigation("Rooms");
 
@@ -473,9 +516,9 @@ namespace System_Analysis.Migrations
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("System_Analysis.Models.Room", b =>
+            modelBuilder.Entity("System_Analysis.Models.Group", b =>
                 {
-                    b.Navigation("Messages");
+                    b.Navigation("GroupMessages");
                 });
 #pragma warning restore 612, 618
         }
