@@ -1,4 +1,5 @@
-﻿using System_Analysis.DTO;
+﻿using Chat.Web.ViewModels;
+using System_Analysis.DTO;
 
 namespace System_Analysis.Services
 {
@@ -6,5 +7,6 @@ namespace System_Analysis.Services
     {
         Task<OtpResponseDTO> GetOtp(string mobileNumber);
         Task<LoginResult> Login(LoginInfo login);
+        Task<UserViewModel> FindMember(string username);
     }
 }

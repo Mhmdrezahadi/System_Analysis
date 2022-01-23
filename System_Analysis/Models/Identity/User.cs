@@ -43,9 +43,9 @@ namespace Entities.Identity
         public virtual ICollection<UserToken> Tokens { get; set; }
 
         public virtual ICollection<UserRole> UserRoles { get; set; }
-        public ICollection<Group> Rooms { get; set; }
+        public ICollection<Group> Groups { get; set; }
         public ICollection<GroupMessage> GroupMessages { get; set; }
-        public ICollection<PrivateMessage> PrivateMessages { get; set; }
+        public ICollection<PrivateMessageUser> PrivateMessageUsers { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

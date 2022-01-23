@@ -131,11 +131,11 @@ namespace System_Analysis
 
                 //c.DocumentFilter<LowerCaseDocumentFilter>();
 
-                c.OrderActionsBy((apiDesc) =>
-                {
-                    return $"{apiDesc.RelativePath.Split('/')[3]}_{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.HttpMethod}_{apiDesc.RelativePath}";
-                }
-               );
+               // c.OrderActionsBy((apiDesc) =>
+               // {
+               //     return $"{apiDesc.RelativePath.Split('/')[3]}_{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.HttpMethod}_{apiDesc.RelativePath}";
+               // }
+               //);
 
                 c.DocInclusionPredicate((name, api) => true);
 

@@ -99,5 +99,12 @@ namespace Socket
         {
             _ConnectionsMap.Add(conn1, conn2);
         }
+
+        public string GetConnectionMap(string connectionKey)
+        {
+            _ConnectionsMap.TryGetValue(connectionKey, out var conn);
+
+            return conn;
+        }
     }
 }

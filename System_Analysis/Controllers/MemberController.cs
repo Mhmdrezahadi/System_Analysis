@@ -1,4 +1,5 @@
-﻿using Entities.Identity;
+﻿using Chat.Web.ViewModels;
+using Entities.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ namespace System_Analysis.Controllers
         {
             _globalService = globalService;
         }
-        [HttpPost("member/login")]
+        [HttpPost("login")]
         public async Task<ActionResult<LoginResult>> Login(LoginInfo login)
         {
             LoginResult res = await _globalService.Login(login);
@@ -27,13 +28,21 @@ namespace System_Analysis.Controllers
             return Ok(res);
         }
 
-        [HttpGet("member/otp")]
+        [HttpGet("otp")]
         public async Task<ActionResult<OtpResponseDTO>> GetOtp([Required][FromQuery] string mobileNumber)
         {
 
             OtpResponseDTO dto = await _globalService.GetOtp(mobileNumber);
 
             return Ok(dto);
+        }
+
+        [HttpGet("find/{username}")]
+        public async Task<ActionResult> FindMember(string username)
+        {
+            UserViewModel user = await _globalService.FindMember(username);
+
+            return Ok(user);
         }
     }
 }

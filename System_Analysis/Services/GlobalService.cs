@@ -1,4 +1,6 @@
-﻿using Entities.Identity;
+﻿using AutoMapper;
+using Chat.Web.ViewModels;
+using Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
@@ -16,13 +18,15 @@ namespace System_Analysis.Services
         private readonly UserManager<User> _userManager;
         private readonly IMemoryCache _memoryCache;
         private readonly IConfiguration _configuration;
+        private readonly IMapper _mapper;
 
-        public GlobalService(SignInManager<User> signInManager, UserManager<User> userManager, IMemoryCache memoryCache, IConfiguration configuration)
+        public GlobalService(SignInManager<User> signInManager, UserManager<User> userManager, IMemoryCache memoryCache, IConfiguration configuration, IMapper mapper)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _memoryCache = memoryCache;
             _configuration = configuration;
+            _mapper = mapper;
         }
 
         public async Task<OtpResponseDTO> GetOtp(string mobileNumber)
@@ -206,5 +210,11 @@ namespace System_Analysis.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        public async Task<UserViewModel> FindMember(string username)
+        {
+            var findedUser = await _userManager.FindByNameAsync(username);
+
+            return _mapper.Map<User, UserViewModel>(findedUser);
+        }
     }
 }
