@@ -6,8 +6,7 @@ namespace System_Analysis.Models
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public User User { get; set; }
-        public Guid UserId { get; set; }
+        public ICollection<User> Users { get; set; }
         public Guid AdminId { get; set; }
         public ICollection<GroupMessage> GroupMessages { get; set; }
     }

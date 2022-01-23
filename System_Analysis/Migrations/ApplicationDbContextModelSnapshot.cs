@@ -128,6 +128,9 @@ namespace System_Analysis.Migrations
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
@@ -179,6 +182,8 @@ namespace System_Analysis.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -322,12 +327,7 @@ namespace System_Analysis.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Groups");
                 });
@@ -371,24 +371,17 @@ namespace System_Analysis.Migrations
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.Property<Guid>("ToUserId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.ToTable("PrivateMessages");
-                });
-
-            modelBuilder.Entity("System_Analysis.Models.PrivateMessageUser", b =>
-                {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("PrivateMessageId")
-                        .HasColumnType("uniqueidentifier");
+                    b.HasKey("Id");
 
-                    b.HasKey("UserId", "PrivateMessageId");
+                    b.HasIndex("UserId");
 
-                    b.HasIndex("PrivateMessageId");
-
-                    b.ToTable("PrivateMessageUser");
+                    b.ToTable("PrivateMessages");
                 });
 
             modelBuilder.Entity("Entities.Identity.RoleClaim", b =>
@@ -400,6 +393,17 @@ namespace System_Analysis.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Entities.Identity.User", b =>
+                {
+                    b.HasOne("System_Analysis.Models.Group", "Group")
+                        .WithMany("Users")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
                 });
 
             modelBuilder.Entity("Entities.Identity.UserClaim", b =>
@@ -454,17 +458,6 @@ namespace System_Analysis.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("System_Analysis.Models.Group", b =>
-                {
-                    b.HasOne("Entities.Identity.User", "User")
-                        .WithMany("Groups")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("System_Analysis.Models.GroupMessage", b =>
                 {
                     b.HasOne("Entities.Identity.User", "FromUser")
@@ -482,21 +475,13 @@ namespace System_Analysis.Migrations
                     b.Navigation("ToGroup");
                 });
 
-            modelBuilder.Entity("System_Analysis.Models.PrivateMessageUser", b =>
+            modelBuilder.Entity("System_Analysis.Models.PrivateMessage", b =>
                 {
-                    b.HasOne("System_Analysis.Models.PrivateMessage", "PrivateMessage")
-                        .WithMany("PrivateMessageUsers")
-                        .HasForeignKey("PrivateMessageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Entities.Identity.User", "User")
-                        .WithMany("PrivateMessageUsers")
+                        .WithMany("PrivateMessages")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("PrivateMessage");
 
                     b.Navigation("User");
                 });
@@ -514,11 +499,9 @@ namespace System_Analysis.Migrations
 
                     b.Navigation("GroupMessages");
 
-                    b.Navigation("Groups");
-
                     b.Navigation("Logins");
 
-                    b.Navigation("PrivateMessageUsers");
+                    b.Navigation("PrivateMessages");
 
                     b.Navigation("Tokens");
 
@@ -528,11 +511,8 @@ namespace System_Analysis.Migrations
             modelBuilder.Entity("System_Analysis.Models.Group", b =>
                 {
                     b.Navigation("GroupMessages");
-                });
 
-            modelBuilder.Entity("System_Analysis.Models.PrivateMessage", b =>
-                {
-                    b.Navigation("PrivateMessageUsers");
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

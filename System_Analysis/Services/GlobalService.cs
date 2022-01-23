@@ -53,7 +53,7 @@ namespace System_Analysis.Services
             var verificationCode = "1111"; // random.Next(1111, 9999).ToString();
 
             //var smsApi = new KavenegarApi(_siteSettings.SmsApiKey);
-            //var result = smsApi.Send("", mobileNumber, $"کد تایید تل بال: {verificationCode}");
+            //var result = smsApi.Send("", mobileNumber, $"کد تایید  بله: {verificationCode}");
 
             //SendResult result;
             //if (!_env.IsDevelopment())
@@ -100,8 +100,7 @@ namespace System_Analysis.Services
             //    };
             //}
 
-            var userFromDb = await _userManager
-                .FindByNameAsync(mobileNumber);
+            var userFromDb = _dbContext.Users.Where(x => x.PhoneNumber == mobileNumber).FirstOrDefault();
 
             _memoryCache.Set(
                 mobileNumber,
@@ -118,7 +117,7 @@ namespace System_Analysis.Services
             {
                 var registerResult = await _userManager.CreateAsync(new User
                 {
-                    UserName = null,
+                    UserName = mobileNumber,
                     PhoneNumber = mobileNumber,
                     FirstName = "",
                     LastName = "",
@@ -149,8 +148,10 @@ namespace System_Analysis.Services
                 return result;
             }
 
+            var userFromDB = _dbContext.Users.Where(x => x.PhoneNumber == dto.MobileNumber).FirstOrDefault();
+
             var auth = await _signInManager.PasswordSignInAsync(
-                dto.MobileNumber,
+                userFromDB,
                 dto.VerificationCode,
                 false,
                 false).ConfigureAwait(false);
@@ -158,8 +159,6 @@ namespace System_Analysis.Services
 
             if (auth.Succeeded)
             {
-                var userFromDB = await _userManager
-                    .FindByNameAsync(dto.MobileNumber).ConfigureAwait(false);
 
                 var claims = new List<Claim>
                 {

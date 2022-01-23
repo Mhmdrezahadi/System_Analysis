@@ -36,17 +36,15 @@ namespace Socket
 
             _presenceTracker.AddConnectionMap(userId, Context.ConnectionId);
 
-            var groupList = _dbContext.Users.Where(x => x.Id == dbUser.Id)
-                .Include(i => i.Groups)
-                .Select(x => x.Groups)
-                .FirstOrDefault()
-                .ToList();
+            var groupList = _dbContext.Groups.Where(x => x.Users.Any(x => x.Id == userId)).ToList();
 
-            var privateList = _dbContext.Users.Where(x => x.Id == dbUser.Id)
-                .SelectMany(s => s.PrivateMessageUsers)
-                .Select(x => x.User)
+            var privateIds = _dbContext.PrivateMessages
+                .Where(x => x.UserId == userId || x.ToUserId == userId)
+                .Select(x => x.ToUserId)
                 .Distinct()
                 .ToList();
+
+            var privateList = _dbContext.Users.Where(x => privateIds.Contains(x.Id)).ToList();
 
             foreach (var user in privateList)
             {
@@ -66,7 +64,7 @@ namespace Socket
             var groupViewModel = _mapper.Map<List<System_Analysis.Models.Group>, List<GroupViewModel>>(groupList);
 
 
-            await Clients.Caller.SendAsync("getConnections", new { groupList, privateList });
+            await Clients.Caller.SendAsync("getConnections", groupViewModel, userViewModel);
 
             await base.OnConnectedAsync();
         }
@@ -100,14 +98,25 @@ namespace Socket
 
             var recieverConnId = _presenceTracker.GetConnectionMap(reciever.Id);
 
-            if (recieverConnId != null)
+            if (!string.IsNullOrEmpty(message.Trim()))
             {
-                if (!string.IsNullOrEmpty(message.Trim()))
+                if (recieverConnId != null)
                 {
                     // Send the message
                     await Clients.Client(recieverConnId).SendAsync("newMessage", messageViewModel);
                     await Clients.Caller.SendAsync("newMessage", messageViewModel);
                 }
+                var time = DateTime.Now;
+                _dbContext.PrivateMessages.Add(new PrivateMessage
+                {
+                    Content = Regex.Replace(message, @"<.*?>", string.Empty),
+                    Timestamp = time,
+                    UserId = sender.Id,
+                    ToUserId = reciever.Id,
+                });
+
+                _dbContext.SaveChanges();
+
             }
         }
         public async Task SendToGroup(Guid groupId, string message)

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using Chat.Web.ViewModels;
 using System_Analysis.Models;
 using Socket;
+using Entities.Identity;
 
 namespace Chat.Web.Controllers
 {
@@ -58,7 +59,8 @@ namespace Chat.Web.Controllers
             var room = new Group()
             {
                 Name = groupViewModel.Name,
-                AdminId = user.Id
+                AdminId = user.Id,
+                Users = new List<User>() { user }
             };
 
             _dbContext.Groups.Add(room);
@@ -78,7 +80,6 @@ namespace Chat.Web.Controllers
             var admin = _dbContext.Users.Where(x => x.UserName == User.Identity.Name).FirstOrDefault();
 
             var room = await _dbContext.Groups
-                .Include(r => r.User)
                 .Where(r => r.Id == id && r.AdminId == admin.Id)
                 .FirstOrDefaultAsync();
 
@@ -88,7 +89,7 @@ namespace Chat.Web.Controllers
             room.Name = roomViewModel.Name;
             await _dbContext.SaveChangesAsync();
 
-            await _hubContext.Clients.All.SendAsync("updateChatRoom", new { id = room.Id, room.Name});
+            await _hubContext.Clients.All.SendAsync("updateChatRoom", new { id = room.Id, room.Name });
 
             return NoContent();
         }
@@ -99,7 +100,6 @@ namespace Chat.Web.Controllers
             var admin = _dbContext.Users.Where(x => x.UserName == User.Identity.Name).FirstOrDefault();
 
             var group = await _dbContext.Groups
-                .Include(r => r.User)
                 .Where(r => r.Id == id && r.AdminId == admin.Id)
                 .FirstOrDefaultAsync();
 
