@@ -12,7 +12,7 @@ using System_Analysis.Models;
 namespace System_Analysis.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220123214816_Initial")]
+    [Migration("20220123215401_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -130,7 +130,7 @@ namespace System_Analysis.Migrations
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("GroupId")
+                    b.Property<Guid?>("GroupId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("LastName")
@@ -401,9 +401,7 @@ namespace System_Analysis.Migrations
                 {
                     b.HasOne("System_Analysis.Models.Group", "Group")
                         .WithMany("Users")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GroupId");
 
                     b.Navigation("Group");
                 });

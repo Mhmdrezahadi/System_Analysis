@@ -7,6 +7,7 @@ using Chat.Web.ViewModels;
 using System_Analysis.Models;
 using Socket;
 using Entities.Identity;
+using System.Security.Claims;
 
 namespace Chat.Web.Controllers
 {
@@ -55,7 +56,10 @@ namespace Chat.Web.Controllers
             if (_dbContext.Groups.Any(r => r.Name == groupViewModel.Name))
                 return BadRequest("Invalid room name or room already exists");
 
-            var user = _dbContext.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var user = _dbContext.Users.FirstOrDefault(u => u.Id == Guid.Parse(userId));
+
             var room = new Group()
             {
                 Name = groupViewModel.Name,

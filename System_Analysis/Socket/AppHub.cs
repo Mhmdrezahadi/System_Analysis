@@ -56,7 +56,7 @@ namespace Socket
 
             foreach (var group in groupList)
             {
-                await Groups.AddToGroupAsync(Context.ConnectionId, group.Name);
+                await Groups.AddToGroupAsync(Context.ConnectionId, group.Id.ToString());
             }
 
             var userViewModel = _mapper.Map<List<User>, List<UserViewModel>>(privateList);
@@ -122,8 +122,8 @@ namespace Socket
         public async Task SendToGroup(Guid groupId, string message)
         {
             var group = _dbContext.Groups.Where(x => x.Id == groupId).FirstOrDefault();
-            await Clients.Groups(group.Name).SendAsync(message);
-
+            await Clients.Groups(group.Id.ToString()).SendAsync(message);
+            
         }
 
     }

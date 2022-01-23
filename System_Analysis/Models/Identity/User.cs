@@ -43,8 +43,8 @@ namespace Entities.Identity
         public virtual ICollection<UserToken> Tokens { get; set; }
 
         public virtual ICollection<UserRole> UserRoles { get; set; }
-        public Group Group { get; set; }
-        public Guid GroupId { get; set; }
+        public Group? Group { get; set; }
+        public Guid? GroupId { get; set; }
         public ICollection<GroupMessage> GroupMessages { get; set; }
         public ICollection<PrivateMessage> PrivateMessages { get; set; }
         public DateTime CreatedAt { get; set; }

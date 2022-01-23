@@ -98,6 +98,14 @@ namespace Socket
         public void AddConnectionMap(Guid userId, string connection)
         {
             _ConnectionsMap.Add(userId, connection);
+
+            lock (_ConnectionsMap)
+            {
+                if (!_ConnectionsMap.ContainsKey(userId))
+                {
+                    _ConnectionsMap.Add(userId, connection);
+                }
+            }
         }
 
         public string GetConnectionMap(Guid userId)
