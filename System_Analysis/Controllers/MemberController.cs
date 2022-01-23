@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using System_Analysis.DTO;
 using System_Analysis.Models;
 using System_Analysis.Services;
@@ -43,6 +44,15 @@ namespace System_Analysis.Controllers
             UserViewModel user = await _globalService.FindMember(username);
 
             return Ok(user);
+        }
+        [HttpPut("edit")]
+        public async Task<ActionResult> EditProfile(UserDTO userDto)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            bool res = await _globalService.EditProfile(userDto,Guid.Parse(userId));
+
+            return Ok(res);
         }
     }
 }

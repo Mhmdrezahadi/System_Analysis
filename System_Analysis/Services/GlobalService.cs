@@ -8,6 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System_Analysis.DTO;
+using System_Analysis.Models;
 
 namespace System_Analysis.Services
 {
@@ -19,14 +20,21 @@ namespace System_Analysis.Services
         private readonly IMemoryCache _memoryCache;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
+        private readonly ApplicationDbContext _dbContext;
 
-        public GlobalService(SignInManager<User> signInManager, UserManager<User> userManager, IMemoryCache memoryCache, IConfiguration configuration, IMapper mapper)
+        public GlobalService(
+            SignInManager<User> signInManager,
+            UserManager<User> userManager,
+            IMemoryCache memoryCache,
+            IConfiguration configuration,
+            IMapper mapper, ApplicationDbContext dbContext)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _memoryCache = memoryCache;
             _configuration = configuration;
             _mapper = mapper;
+            _dbContext = dbContext;
         }
 
         public async Task<OtpResponseDTO> GetOtp(string mobileNumber)
@@ -110,7 +118,7 @@ namespace System_Analysis.Services
             {
                 var registerResult = await _userManager.CreateAsync(new User
                 {
-                    UserName = mobileNumber,
+                    UserName = null,
                     PhoneNumber = mobileNumber,
                     FirstName = "",
                     LastName = "",
@@ -126,7 +134,6 @@ namespace System_Analysis.Services
                 Message = "پیامک ارسال شد"
             };
         }
-
         public async Task<LoginResult> Login(LoginInfo dto)
         {
 
@@ -158,8 +165,8 @@ namespace System_Analysis.Services
                 {
                     new Claim(ClaimTypes.NameIdentifier,
                     userFromDB.Id.ToString()),
-                    new Claim(ClaimTypes.Name,
-                    userFromDB.UserName),
+                    new Claim(ClaimTypes.MobilePhone,
+                    userFromDB.PhoneNumber)
                 };
 
                 var roles = await _userManager.GetRolesAsync(userFromDB).ConfigureAwait(false);
@@ -209,12 +216,22 @@ namespace System_Analysis.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
         public async Task<UserViewModel> FindMember(string username)
         {
             var findedUser = await _userManager.FindByNameAsync(username);
 
             return _mapper.Map<User, UserViewModel>(findedUser);
+        }
+        public async Task<bool> EditProfile(UserDTO user, Guid userId)
+        {
+            var dbUser = _dbContext.Users.Where(x => x.Id == userId).FirstOrDefault();
+
+            dbUser.FirstName = user.FirstName;
+            dbUser.LastName = user.LastName;
+            dbUser.UserName = user.UserName;
+
+            _dbContext.Users.Update(dbUser);
+            return (await _dbContext.SaveChangesAsync() > 0);
         }
     }
 }

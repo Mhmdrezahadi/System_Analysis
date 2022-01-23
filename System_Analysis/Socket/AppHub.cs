@@ -34,9 +34,7 @@ namespace Socket
 
             var dbUser = _dbContext.Users.Where(x => x.Id == userId).FirstOrDefault();
 
-            var isOnline = await _presenceTracker.UserConnected(userId, Context.ConnectionId);
-
-
+            _presenceTracker.AddConnectionMap(userId, Context.ConnectionId);
 
             var groupList = _dbContext.Users.Where(x => x.Id == dbUser.Id)
                 .Include(i => i.Groups)
@@ -52,11 +50,10 @@ namespace Socket
 
             foreach (var user in privateList)
             {
-                var pvConnections = await _presenceTracker.GetConnectionsForUser(user.Id);
-                foreach (var connection in pvConnections)
-                {
-                    _presenceTracker.AddConnectionMap(Context.ConnectionId, connection);
-                }
+                var pvConnection = _presenceTracker.GetConnectionMap(user.Id);
+
+                if (pvConnection != null)
+                    await _presenceTracker.UserConnected(userId, pvConnection);
             }
 
             foreach (var group in groupList)
@@ -69,9 +66,7 @@ namespace Socket
             var groupViewModel = _mapper.Map<List<System_Analysis.Models.Group>, List<GroupViewModel>>(groupList);
 
 
-
-
-            await Clients.Caller.SendAsync("getProfileInfo", new { groupList, privateList });
+            await Clients.Caller.SendAsync("getConnections", new { groupList, privateList });
 
             await base.OnConnectedAsync();
         }
@@ -79,6 +74,8 @@ namespace Socket
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             var userId = Guid.Parse(Context.UserIdentifier);
+
+            var isRemoved = await _presenceTracker.RemoveConnection(userId);
 
             var isOffline = await _presenceTracker.UserDisconnected(userId, Context.ConnectionId);
 
@@ -92,8 +89,6 @@ namespace Socket
             var sender = _dbContext.Users.Where(x => x.Id == user).FirstOrDefault();
             var reciever = _dbContext.Users.Where(x => x.UserName == username).FirstOrDefault();
 
-            var recieverConnections = await _presenceTracker.GetConnectionsForUser(reciever.Id);
-
             // Build the message
             var messageViewModel = new MessageViewModel()
             {
@@ -103,17 +98,23 @@ namespace Socket
                 Timestamp = DateTime.Now.ToLongTimeString()
             };
 
-            var recieverConnection = _presenceTracker.GetConnectionMap(Context.ConnectionId);
+            var recieverConnId = _presenceTracker.GetConnectionMap(reciever.Id);
 
-            if (await _presenceTracker.UserIsOnline(user))
+            if (recieverConnId != null)
             {
                 if (!string.IsNullOrEmpty(message.Trim()))
                 {
                     // Send the message
-                    await Clients.Client(recieverConnection).SendAsync("newMessage", messageViewModel);
+                    await Clients.Client(recieverConnId).SendAsync("newMessage", messageViewModel);
                     await Clients.Caller.SendAsync("newMessage", messageViewModel);
                 }
             }
+        }
+        public async Task SendToGroup(Guid groupId, string message)
+        {
+            var group = _dbContext.Groups.Where(x => x.Id == groupId).FirstOrDefault();
+            await Clients.Groups(group.Name).SendAsync(message);
+
         }
 
     }

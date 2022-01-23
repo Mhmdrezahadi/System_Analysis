@@ -9,7 +9,7 @@ namespace Socket
     {
         private static readonly Dictionary<Guid, List<string>> OnlineUsers =
             new();
-        private static readonly Dictionary<string, string> _ConnectionsMap =
+        private static readonly Dictionary<Guid, string> _ConnectionsMap =
             new();
 
         public Task<bool> UserConnected(Guid userId, string connectionId)
@@ -95,16 +95,20 @@ namespace Socket
             return Task.FromResult(connectionIds);
         }
 
-        public void AddConnectionMap(string conn1, string conn2)
+        public void AddConnectionMap(Guid userId, string connection)
         {
-            _ConnectionsMap.Add(conn1, conn2);
+            _ConnectionsMap.Add(userId, connection);
         }
 
-        public string GetConnectionMap(string connectionKey)
+        public string GetConnectionMap(Guid userId)
         {
-            _ConnectionsMap.TryGetValue(connectionKey, out var conn);
+            _ConnectionsMap.TryGetValue(userId, out var conn);
 
             return conn;
+        }
+        public Task<bool> RemoveConnection(Guid userId)
+        {
+            return Task.FromResult(_ConnectionsMap.Remove(userId));
         }
     }
 }
