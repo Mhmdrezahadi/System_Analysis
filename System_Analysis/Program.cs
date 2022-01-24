@@ -2,6 +2,16 @@ using Socket;
 using System_Analysis;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.ConfigureWebHostDefaults(config => config.UseUrls(urls: "185.235.40.19:5001"));
+//var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+//{
+   
+//    ApplicationName = typeof(Program).Assembly.FullName,
+//    ContentRootPath = Directory.GetCurrentDirectory(),
+//    EnvironmentName = Environments.Staging,
+//    WebRootPath = "customwwwroot"
+//});
+
 
 
 // add collection of services: dbcontext, jwtAuth, scopedServices, signalr, memorycache

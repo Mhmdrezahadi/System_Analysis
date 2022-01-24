@@ -70,15 +70,13 @@ namespace Chat.Web.Controllers
             _dbContext.Groups.Add(room);
             await _dbContext.SaveChangesAsync();
 
-            // await _hubContext.Clients.All.SendAsync("addChatRoom", new { id = room.Id, name = room.Name });
-
             return CreatedAtAction(nameof(Get), new { id = room.Id }, new { id = room.Id, name = room.Name });
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Edit(Guid id, GroupViewModel roomViewModel)
         {
-            if (_dbContext.Groups.Any(r => r.Name == roomViewModel.Name))
+            if (_dbContext.Groups.Any(r => r.Id == roomViewModel.Id))
                 return BadRequest("Invalid room name or room already exists");
 
             var admin = _dbContext.Users.Where(x => x.UserName == User.Identity.Name).FirstOrDefault();

@@ -36,7 +36,9 @@ namespace Socket
 
             _presenceTracker.AddConnectionMap(userId, Context.ConnectionId);
 
-            var groupList = _dbContext.Groups.Where(x => x.Users.Any(x => x.Id == userId)).ToList();
+            var groupList = _dbContext.Groups.Where(x => x.Users.Any(x => x.Id == userId))
+                .OrderByDescending(o => o.GroupMessages.Select(s => s.Timestamp))
+                .ToList();
 
             var privateIds = _dbContext.PrivateMessages
                 .Where(x => x.UserId == userId || x.ToUserId == userId)
@@ -44,7 +46,10 @@ namespace Socket
                 .Distinct()
                 .ToList();
 
-            var privateList = _dbContext.Users.Where(x => privateIds.Contains(x.Id)).ToList();
+            var privateList = _dbContext.Users
+                .Where(x => privateIds.Contains(x.Id))
+                .OrderByDescending(o => o.PrivateMessages.Select(s => s.Timestamp))
+                .ToList();
 
             foreach (var user in privateList)
             {
@@ -73,9 +78,33 @@ namespace Socket
         {
             var userId = Guid.Parse(Context.UserIdentifier);
 
-            var isRemoved = await _presenceTracker.RemoveConnection(userId);
+            var groupList = _dbContext.Groups.Where(x => x.Users.Any(x => x.Id == userId))
+                .OrderByDescending(o => o.GroupMessages.Select(s => s.Timestamp))
+                .ToList();
 
-            var isOffline = await _presenceTracker.UserDisconnected(userId, Context.ConnectionId);
+            var privateIds = _dbContext.PrivateMessages
+                .Where(x => x.UserId == userId || x.ToUserId == userId)
+                .Select(x => x.ToUserId)
+                .Distinct()
+                .ToList();
+
+            var privateList = _dbContext.Users
+                .Where(x => privateIds.Contains(x.Id))
+                .OrderByDescending(o => o.PrivateMessages.Select(s => s.Timestamp))
+                .ToList();
+
+            foreach (var user in privateList)
+            {
+                var pvConnection = _presenceTracker.GetConnectionMap(user.Id);
+
+                if (pvConnection != null)
+                    await _presenceTracker.UserDisconnected(userId, pvConnection);
+            }
+
+            foreach (var group in groupList)
+            {
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, group.Id.ToString());
+            }
 
             await base.OnDisconnectedAsync(exception);
         }
@@ -122,8 +151,9 @@ namespace Socket
         public async Task SendToGroup(Guid groupId, string message)
         {
             var group = _dbContext.Groups.Where(x => x.Id == groupId).FirstOrDefault();
+
             await Clients.Groups(group.Id.ToString()).SendAsync(message);
-            
+
         }
 
     }

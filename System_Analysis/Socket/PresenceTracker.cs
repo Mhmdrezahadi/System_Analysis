@@ -110,13 +110,20 @@ namespace Socket
 
         public string GetConnectionMap(Guid userId)
         {
-            _ConnectionsMap.TryGetValue(userId, out var conn);
+            lock (_ConnectionsMap)
+            {
+                _ConnectionsMap.TryGetValue(userId, out var conn);
+                return conn;
+            }
 
-            return conn;
         }
         public Task<bool> RemoveConnection(Guid userId)
         {
-            return Task.FromResult(_ConnectionsMap.Remove(userId));
+            lock (_ConnectionsMap)
+            {
+                return Task.FromResult(_ConnectionsMap.Remove(userId));
+            }
+
         }
     }
 }
