@@ -10,5 +10,6 @@ namespace System_Analysis.Services
         Task<UserViewModel> FindMember(string username);
         Task<bool> EditProfile(UserDTO user, Guid userId);
         Task<List<UserViewModel>> SearchMembers(string username);
+        Task<UserViewModel> FindMemberByMobile(string mobileNumber);
     }
 }

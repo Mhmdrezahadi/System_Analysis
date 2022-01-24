@@ -38,10 +38,17 @@ namespace System_Analysis.Controllers
             return Ok(dto);
         }
 
-        [HttpGet("find/{username}")]
-        public async Task<ActionResult<UserViewModel>> FindMember(string username)
+        [HttpGet("findbyusername/{username}")]
+        public async Task<ActionResult<UserViewModel>> FindMemberByUsername(string username)
         {
             UserViewModel user = await _globalService.FindMember(username);
+
+            return Ok(user);
+        }
+        [HttpGet("findbymobilenumber/{mobileNumber}")]
+        public async Task<ActionResult<UserViewModel>> FindMemberByMobile(string mobileNumber)
+        {
+            UserViewModel user = await _globalService.FindMemberByMobile(mobileNumber);
 
             return Ok(user);
         }

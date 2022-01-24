@@ -240,5 +240,13 @@ namespace System_Analysis.Services
             return _mapper.Map<List<User>, List<UserViewModel>>(dbusers);
 
         }
+
+        public async Task<UserViewModel> FindMemberByMobile(string mobileNumber)
+        {
+            var findedUser = await _dbContext.Users.Where(x => x.PhoneNumber == mobileNumber).FirstOrDefaultAsync();
+
+            return _mapper.Map<User, UserViewModel>(findedUser);
+        }
+
     }
 }
