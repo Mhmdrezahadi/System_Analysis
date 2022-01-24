@@ -9,5 +9,6 @@ namespace System_Analysis.Services
         Task<LoginResult> Login(LoginInfo login);
         Task<UserViewModel> FindMember(string username);
         Task<bool> EditProfile(UserDTO user, Guid userId);
+        Task<List<UserViewModel>> SearchMembers(string username);
     }
 }

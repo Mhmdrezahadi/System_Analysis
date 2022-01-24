@@ -10,10 +10,12 @@ namespace Chat.Web.ViewModels
     {
         [Required]
         public string Content { get; set; }
-        public string Timestamp { get; set; }
-        public string From { get; set; }
+        public DateTime Timestamp { get; set; }
+        public UserViewModel From { get; set; }
+        public UserViewModel To { get; set; }
         [Required]
-        public string Room { get; set; }
+        public GroupViewModel Group { get; set; }
+        public bool IsMine { get; set; }
         public string Avatar { get; set; }
     }
 }

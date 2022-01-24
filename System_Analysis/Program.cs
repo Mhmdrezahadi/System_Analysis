@@ -1,55 +1,18 @@
-using Socket;
-using System_Analysis;
-
-var builder = WebApplication.CreateBuilder(args);
-builder.Host.ConfigureWebHostDefaults(config => config.UseUrls(urls: "185.235.40.19:5001"));
-//var builder = WebApplication.CreateBuilder(new WebApplicationOptions
-//{
-   
-//    ApplicationName = typeof(Program).Assembly.FullName,
-//    ContentRootPath = Directory.GetCurrentDirectory(),
-//    EnvironmentName = Environments.Staging,
-//    WebRootPath = "customwwwroot"
-//});
-
-
-
-// add collection of services: dbcontext, jwtAuth, scopedServices, signalr, memorycache
-builder.Services.AddServiceCollection(builder.Configuration);
-
-builder.Services.AddControllers();
-
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+namespace System_Analysis
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>().UseUrls(urls: "http://192.168.1.106:5001");
+                    //webBuilder.UseUrls(urls: "http://192.168.4.1");
+                });
+    }
 }
-app.UseCors(config =>
-{
-    config.AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowAnyOrigin()
-        .AllowCredentials()
-        .WithOrigins("http://localhost:4200");
-});
-
-app.UseHttpsRedirection();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllers();
-
-
-app.MapHub<AppHub>("/hub");
-
-app.Run();

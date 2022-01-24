@@ -33,8 +33,16 @@ namespace Socket
             var userId = Guid.Parse(Context.UserIdentifier);
 
             var dbUser = _dbContext.Users.Where(x => x.Id == userId).FirstOrDefault();
+            try
+            {
+                _presenceTracker.AddConnectionMap(userId, Context.ConnectionId);
 
-            _presenceTracker.AddConnectionMap(userId, Context.ConnectionId);
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex.Message);
+            }
+
 
             var groupList = _dbContext.Groups.Where(x => x.Users.Any(x => x.Id == userId))
                 .OrderByDescending(o => o.GroupMessages.Select(s => s.Timestamp))
@@ -50,18 +58,25 @@ namespace Socket
                 .Where(x => privateIds.Contains(x.Id))
                 .OrderByDescending(o => o.PrivateMessages.Select(s => s.Timestamp))
                 .ToList();
-
-            foreach (var user in privateList)
+            try
             {
-                var pvConnection = _presenceTracker.GetConnectionMap(user.Id);
 
-                if (pvConnection != null)
-                    await _presenceTracker.UserConnected(userId, pvConnection);
+                foreach (var user in privateList)
+                {
+                    var pvConnection = _presenceTracker.GetConnectionMap(user.Id);
+
+                    if (pvConnection != null)
+                        await _presenceTracker.UserConnected(userId, pvConnection);
+                }
+
+                foreach (var group in groupList)
+                {
+                    await Groups.AddToGroupAsync(Context.ConnectionId, group.Id.ToString());
+                }
             }
-
-            foreach (var group in groupList)
+            catch (Exception ex)
             {
-                await Groups.AddToGroupAsync(Context.ConnectionId, group.Id.ToString());
+                Console.Write(ex.Message);
             }
 
             var userViewModel = _mapper.Map<List<User>, List<UserViewModel>>(privateList);
@@ -109,20 +124,24 @@ namespace Socket
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task SendPrivate(string username, string message)
+        public async Task SendPrivate(Guid userId, string message)
         {
             var user = Guid.Parse(Context.UserIdentifier);
 
             var sender = _dbContext.Users.Where(x => x.Id == user).FirstOrDefault();
-            var reciever = _dbContext.Users.Where(x => x.UserName == username).FirstOrDefault();
+            var reciever = _dbContext.Users.Where(x => x.Id == userId).FirstOrDefault();
 
             // Build the message
             var messageViewModel = new MessageViewModel()
             {
                 Content = Regex.Replace(message, @"<.*?>", string.Empty),
-                From = sender.FirstName + " " + sender.LastName,
+
+                From = _mapper.Map<User, UserViewModel>(sender),
                 Avatar = sender.SnapShot,
-                Timestamp = DateTime.Now.ToLongTimeString()
+                Timestamp = DateTime.Now,
+                Group = null,
+                IsMine = true,
+                To = _mapper.Map<User, UserViewModel>(reciever),
             };
 
             var recieverConnId = _presenceTracker.GetConnectionMap(reciever.Id);
@@ -135,11 +154,10 @@ namespace Socket
                     await Clients.Client(recieverConnId).SendAsync("newMessage", messageViewModel);
                     await Clients.Caller.SendAsync("newMessage", messageViewModel);
                 }
-                var time = DateTime.Now;
                 _dbContext.PrivateMessages.Add(new PrivateMessage
                 {
                     Content = Regex.Replace(message, @"<.*?>", string.Empty),
-                    Timestamp = time,
+                    Timestamp = DateTime.Now,
                     UserId = sender.Id,
                     ToUserId = reciever.Id,
                 });
@@ -152,9 +170,19 @@ namespace Socket
         {
             var group = _dbContext.Groups.Where(x => x.Id == groupId).FirstOrDefault();
 
+            var sender = _dbContext.Users.Where(x => x.Id == Guid.Parse(Context.UserIdentifier)).FirstOrDefault();
+
+            _dbContext.GroupMessages.Add(new GroupMessage
+            {
+                Content = Regex.Replace(message, @"<.*?>", string.Empty),
+                Timestamp = DateTime.Now,
+                FromUser = sender,
+                ToGroup = group,
+            });
+
+            _dbContext.SaveChanges();
+
             await Clients.Groups(group.Id.ToString()).SendAsync(message);
-
         }
-
     }
 }

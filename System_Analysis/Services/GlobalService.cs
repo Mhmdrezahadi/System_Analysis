@@ -2,6 +2,7 @@
 using Chat.Web.ViewModels;
 using Entities.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -231,6 +232,13 @@ namespace System_Analysis.Services
 
             _dbContext.Users.Update(dbUser);
             return (await _dbContext.SaveChangesAsync() > 0);
+        }
+        public async Task<List<UserViewModel>> SearchMembers(string username)
+        {
+            var dbusers = await _dbContext.Users.Where(x => x.UserName.Contains(username)).ToListAsync();
+
+            return _mapper.Map<List<User>, List<UserViewModel>>(dbusers);
+
         }
     }
 }

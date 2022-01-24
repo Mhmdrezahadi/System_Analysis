@@ -10,8 +10,8 @@ namespace Chat.Web.Mappings
         public MessageProfile()
         {
             CreateMap<GroupMessage, MessageViewModel>()
-                .ForMember(dst => dst.From, opt => opt.MapFrom(x => x.FromUser.FirstName + " " + x.FromUser.LastName))
-                .ForMember(dst => dst.Room, opt => opt.MapFrom(x => x.ToGroup.Name))
+                .ForMember(dst => dst.From, opt => opt.MapFrom(x => x.FromUser))
+                .ForMember(dst => dst.Group, opt => opt.MapFrom(x => x.ToGroup))
                 .ForMember(dst => dst.Avatar, opt => opt.MapFrom(x => x.FromUser.SnapShot))
                 .ForMember(dst => dst.Content, opt => opt.MapFrom(x => BasicEmojis.ParseEmojis(x.Content)))
                 .ForMember(dst => dst.Timestamp, opt => opt.MapFrom(x => x.Timestamp));

@@ -39,20 +39,31 @@ namespace System_Analysis.Controllers
         }
 
         [HttpGet("find/{username}")]
-        public async Task<ActionResult> FindMember(string username)
+        public async Task<ActionResult<UserViewModel>> FindMember(string username)
         {
             UserViewModel user = await _globalService.FindMember(username);
 
             return Ok(user);
         }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<List<UserViewModel>>> SearchMembers([FromQuery] string username)
+        {
+            List<UserViewModel> users = await _globalService.SearchMembers(username);
+
+            return Ok(users);
+        }
+
         [HttpPut("edit")]
         public async Task<ActionResult> EditProfile(UserDTO userDto)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            bool res = await _globalService.EditProfile(userDto,Guid.Parse(userId));
+            bool res = await _globalService.EditProfile(userDto, Guid.Parse(userId));
 
             return Ok(res);
         }
+
+
     }
 }
