@@ -42,11 +42,18 @@ namespace Socket
             {
                 Console.Write(ex.Message);
             }
+            List<System_Analysis.Models.Group> groupList = new List<System_Analysis.Models.Group>();
+            try
+            {
+                groupList = _dbContext.Groups.Where(x => x.Users.Any(x => x.Id == userId))
+                   .Include(i => i.GroupMessages)
+                   //.OrderByDescending(o => o.GroupMessages.Select(s => s.Timestamp).ToList())
+                   .ToList();
+            }
+            catch (Exception ex)
+            {
 
-
-            var groupList = _dbContext.Groups.Where(x => x.Users.Any(x => x.Id == userId))
-                .OrderByDescending(o => o.GroupMessages.Select(s => s.Timestamp))
-                .ToList();
+            }
 
             var privateIds = _dbContext.PrivateMessages
                 .Where(x => x.UserId == userId || x.ToUserId == userId)
@@ -56,7 +63,7 @@ namespace Socket
 
             var privateList = _dbContext.Users
                 .Where(x => privateIds.Contains(x.Id))
-                .OrderByDescending(o => o.PrivateMessages.Select(s => s.Timestamp))
+                //.OrderByDescending(o => o.PrivateMessages.Select(s => s.Timestamp).ToList())
                 .ToList();
             try
             {

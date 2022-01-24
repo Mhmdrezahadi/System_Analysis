@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using System_Analysis.Models.Bank;
 
 namespace System_Analysis.Models
 {
@@ -15,6 +16,14 @@ namespace System_Analysis.Models
         public DbSet<GroupMessage> GroupMessages { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<PrivateMessage> PrivateMessages { get; set; }
+        public DbSet<BankCard> BankCards { get; set; }
+        public DbSet<CardToCard> CardToCards { get; set; }
+        public DbSet<HousingFacility> HousingFacilities { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<Wallet> Wallets { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Bot> Bots { get; set; }
+        public DbSet<Channel> Channels { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

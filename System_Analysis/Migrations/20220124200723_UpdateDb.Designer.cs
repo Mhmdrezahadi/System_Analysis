@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System_Analysis.Models;
 
@@ -11,9 +12,10 @@ using System_Analysis.Models;
 namespace System_Analysis.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220124200723_UpdateDb")]
+    partial class UpdateDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -106,12 +108,6 @@ namespace System_Analysis.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("BotId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ChannelId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
 
@@ -188,10 +184,6 @@ namespace System_Analysis.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BotId");
-
-                    b.HasIndex("ChannelId");
 
                     b.HasIndex("GroupId");
 
@@ -325,256 +317,6 @@ namespace System_Analysis.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("System_Analysis.Models.Bank.BankCard", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("CVV2")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CardNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("dateTime")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("BankCards");
-                });
-
-            modelBuilder.Entity("System_Analysis.Models.Bank.CardToCard", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BankCardId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DesCard")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsSuccess")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SrcCard")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BankCardId");
-
-                    b.ToTable("CardToCards");
-                });
-
-            modelBuilder.Entity("System_Analysis.Models.Bank.HousingFacility", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BankCardId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FacilityCard")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("TrackingCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BankCardId");
-
-                    b.ToTable("HousingFacilities");
-                });
-
-            modelBuilder.Entity("System_Analysis.Models.Bank.Payment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BankCardId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsSuccess")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("MobileNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Operator")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PaymentType")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("SimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Time")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("TrackingCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Volume")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BankCardId");
-
-                    b.ToTable("Payments");
-                });
-
-            modelBuilder.Entity("System_Analysis.Models.Bank.Transaction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("TrackingCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("WalletId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("WalletId");
-
-                    b.ToTable("Transactions");
-                });
-
-            modelBuilder.Entity("System_Analysis.Models.Bank.Wallet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Balance")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Value")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Wallets");
-                });
-
-            modelBuilder.Entity("System_Analysis.Models.Bot", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("About")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("AdminId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("BotId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Bots");
-                });
-
-            modelBuilder.Entity("System_Analysis.Models.Channel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("About")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("AdminId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ChannelId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ChannelPicture")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ChannelType")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Link")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Channels");
-                });
-
             modelBuilder.Entity("System_Analysis.Models.Group", b =>
                 {
                     b.Property<Guid>("Id")
@@ -619,12 +361,6 @@ namespace System_Analysis.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("BotId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ChannelId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
@@ -638,10 +374,6 @@ namespace System_Analysis.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BotId");
-
-                    b.HasIndex("ChannelId");
 
                     b.HasIndex("FromUserId");
 
@@ -688,14 +420,6 @@ namespace System_Analysis.Migrations
 
             modelBuilder.Entity("Entities.Identity.User", b =>
                 {
-                    b.HasOne("System_Analysis.Models.Bot", null)
-                        .WithMany("Users")
-                        .HasForeignKey("BotId");
-
-                    b.HasOne("System_Analysis.Models.Channel", null)
-                        .WithMany("Users")
-                        .HasForeignKey("ChannelId");
-
                     b.HasOne("System_Analysis.Models.Group", "Group")
                         .WithMany("Users")
                         .HasForeignKey("GroupId");
@@ -755,82 +479,8 @@ namespace System_Analysis.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("System_Analysis.Models.Bank.BankCard", b =>
-                {
-                    b.HasOne("Entities.Identity.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("System_Analysis.Models.Bank.CardToCard", b =>
-                {
-                    b.HasOne("System_Analysis.Models.Bank.BankCard", "BankCard")
-                        .WithMany()
-                        .HasForeignKey("BankCardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BankCard");
-                });
-
-            modelBuilder.Entity("System_Analysis.Models.Bank.HousingFacility", b =>
-                {
-                    b.HasOne("System_Analysis.Models.Bank.BankCard", "BankCard")
-                        .WithMany()
-                        .HasForeignKey("BankCardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BankCard");
-                });
-
-            modelBuilder.Entity("System_Analysis.Models.Bank.Payment", b =>
-                {
-                    b.HasOne("System_Analysis.Models.Bank.BankCard", "BankCard")
-                        .WithMany()
-                        .HasForeignKey("BankCardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BankCard");
-                });
-
-            modelBuilder.Entity("System_Analysis.Models.Bank.Transaction", b =>
-                {
-                    b.HasOne("System_Analysis.Models.Bank.Wallet", "Wallet")
-                        .WithMany()
-                        .HasForeignKey("WalletId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Wallet");
-                });
-
-            modelBuilder.Entity("System_Analysis.Models.Bank.Wallet", b =>
-                {
-                    b.HasOne("Entities.Identity.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("System_Analysis.Models.GroupMessage", b =>
                 {
-                    b.HasOne("System_Analysis.Models.Bot", null)
-                        .WithMany("GroupMessages")
-                        .HasForeignKey("BotId");
-
-                    b.HasOne("System_Analysis.Models.Channel", null)
-                        .WithMany("GroupMessages")
-                        .HasForeignKey("ChannelId");
-
                     b.HasOne("Entities.Identity.User", "FromUser")
                         .WithMany("GroupMessages")
                         .HasForeignKey("FromUserId");
@@ -877,20 +527,6 @@ namespace System_Analysis.Migrations
                     b.Navigation("Tokens");
 
                     b.Navigation("UserRoles");
-                });
-
-            modelBuilder.Entity("System_Analysis.Models.Bot", b =>
-                {
-                    b.Navigation("GroupMessages");
-
-                    b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("System_Analysis.Models.Channel", b =>
-                {
-                    b.Navigation("GroupMessages");
-
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("System_Analysis.Models.Group", b =>
